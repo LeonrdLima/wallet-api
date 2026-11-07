@@ -2,6 +2,7 @@ package com.ada.wallet_api.service;
 
 import org.springframework.stereotype.Service;
 
+import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.repository.ContaRepository;
 
 @Service
@@ -14,7 +15,8 @@ public class ContaService {
     }
 
     public Double consultarSaldo(Long contaId) {
-        return null;
+        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+        return conta.getSaldo();
     }
 
 }
