@@ -1,6 +1,9 @@
 package com.ada.wallet_api.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -37,6 +40,25 @@ public class ContaServiceTest {
 
     // Assert
     assertEquals(150, saldo);
+    }
+
+    @Test
+    @DisplayName("Deve realizar depósito com sucesso quando o valor for positivo")
+    void deveDepositarComSucessoQuandoValorPositivo() {
+        // Arrange
+        Long contaId = 1L;
+        Double valorDeposito = 50.0;
+        Conta contaMock = new Conta(contaId, "Leonardo", 100.0);
+
+        when(contaRepository.findById(contaId)).thenReturn(Optional.of(contaMock));
+        when(contaRepository.save(any(Conta.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Conta contaAtualizada = contaService.depositar(contaId, valorDeposito);
+
+        // Assert
+        assertEquals(150, contaAtualizada.getSaldo());
+        verify(contaRepository, times(1)).save(contaMock);
     }
     
 }

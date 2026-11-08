@@ -19,4 +19,8 @@ public class ContaService {
         return conta.getSaldo();
     }
 
+    public Conta depositar(Long contaId, Double valor) {
+        return null;
+    }
+
 }
