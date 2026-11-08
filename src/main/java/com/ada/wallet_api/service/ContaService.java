@@ -29,4 +29,8 @@ public class ContaService {
         return contaRepository.save(conta);
     }
 
+    public void transferir(Long contaOrigemId, Long contaDestinoId, Double valor) {
+        
+    }
+
 }

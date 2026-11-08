@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -77,6 +78,30 @@ public class ContaServiceTest {
 
         // Verifica se o repositório nunca tentou salvr uma conta se o valor for inválido
         verify(contaRepository, never()).save(any(Conta.class));
+    }
+
+    @Test
+    @DisplayName("Deve transferir um valor entre duas contas com sucesso quando saldo for suficiente")
+    void deveTransferirValorComSucesso() {
+        // Arrange
+        Long contaOrigemId = 1L;
+        Long contaDestinoId = 2L;
+        Double valor = 50.0;
+
+        Conta origem = new Conta(contaOrigemId, "Origem", 100.0);
+        Conta destino = new Conta(contaDestinoId, "Destino", 20.0);
+
+        when(contaRepository.findById(contaOrigemId)).thenReturn(Optional.of(origem));
+        when(contaRepository.findById(contaDestinoId)).thenReturn(Optional.of(destino));
+
+        // Act
+        contaService.transferir(contaOrigemId, contaDestinoId, valor);
+
+        // Assert
+        assertEquals(50.0, origem.getSaldo()); // 100-50 = 50
+        assertEquals(70.0, destino.getSaldo()); // 20+50 = 70
+        verify(contaRepository, times(1)).save(origem);
+        verify(contaRepository, times(1)).save(destino);
     }
     
 }
