@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -18,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.ada.wallet_api.exception.SaldoInsuficienteException;
 import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.repository.ContaRepository;
 
@@ -102,6 +102,29 @@ public class ContaServiceTest {
         assertEquals(70.0, destino.getSaldo()); // 20+50 = 70
         verify(contaRepository, times(1)).save(origem);
         verify(contaRepository, times(1)).save(destino);
+    }
+
+    @Test
+    @DisplayName("Deve lançar SaldoInsuficienteException quando a conta de origem não tiver saldo suficiente")
+    void deveLancarExcecaoQuandoSaldoInsuficienteNaTransferencia() {
+        // Arrange
+        Long contaOrigemId = 1L;
+        Long contaDestinoId = 2L;
+        Double valor = 150.0;
+
+        Conta origem = new Conta(contaOrigemId, "Origem", 100.0);
+        Conta destino = new Conta(contaDestinoId, "Destino", 50.0);
+
+        when(contaRepository.findById(contaOrigemId)).thenReturn(Optional.of(origem));
+        when(contaRepository.findById(contaDestinoId)).thenReturn(Optional.of(destino));
+
+        // Act and Assert
+        assertThrows(SaldoInsuficienteException.class, () -> {
+            contaService.transferir(contaOrigemId, contaDestinoId, valor);
+        });
+
+        // Verifica se nenhuma conta teve seu estado salvo
+        verify(contaRepository, never()).save(any(Conta.class));
     }
     
 }
