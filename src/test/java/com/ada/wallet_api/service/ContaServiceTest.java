@@ -113,10 +113,8 @@ public class ContaServiceTest {
         Double valor = 150.0;
 
         Conta origem = new Conta(contaOrigemId, "Origem", 100.0);
-        Conta destino = new Conta(contaDestinoId, "Destino", 50.0);
 
         when(contaRepository.findById(contaOrigemId)).thenReturn(Optional.of(origem));
-        when(contaRepository.findById(contaDestinoId)).thenReturn(Optional.of(destino));
 
         // Act and Assert
         assertThrows(SaldoInsuficienteException.class, () -> {

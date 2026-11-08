@@ -3,6 +3,7 @@ package com.ada.wallet_api.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ada.wallet_api.exception.SaldoInsuficienteException;
 import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.repository.ContaRepository;
 
@@ -37,6 +38,10 @@ public class ContaService {
         }
 
         Conta origem = contaRepository.findById(contaOrigemId).orElseThrow(() -> new IllegalArgumentException("Conta de origem não encontrada"));
+
+        if(origem.getSaldo() < valor) {
+            throw new SaldoInsuficienteException("Saldo insuficiente para transferência");
+        }
 
         Conta destino = contaRepository.findById(contaDestinoId).orElseThrow(() -> new IllegalArgumentException("Conta de destino não encontrada"));
 
