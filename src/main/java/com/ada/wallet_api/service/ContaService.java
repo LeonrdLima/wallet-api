@@ -20,6 +20,9 @@ public class ContaService {
     }
 
     public Conta depositar(Long contaId, Double valor) {
+        if(valor == null || valor <= 0) {
+            throw new IllegalArgumentException("O valor do depósito deve ser maior que zero");
+        }
         Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
 
         conta.setSaldo(conta.getSaldo() + valor);
