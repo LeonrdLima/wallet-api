@@ -1,7 +1,9 @@
 package com.ada.wallet_api.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,6 +61,22 @@ public class ContaServiceTest {
         // Assert
         assertEquals(150, contaAtualizada.getSaldo());
         verify(contaRepository, times(1)).save(contaMock);
+    }
+
+    @Test
+    @DisplayName("Deve lançar IllegalArgumentException ao tentar depositar valor menor ou igual a zero")
+    void deveLancarExcecaoQuandoDepositarValorInvalido() {
+        // Arrange
+        Long contaId = 1L;
+        Double valorInvalido = 0.0;
+
+        // Act and Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            contaService.depositar(contaId, valorInvalido);
+        });
+
+        // Verifica se o repositório nunca tentou salvr uma conta se o valor for inválido
+        verify(contaRepository, never()).save(any(Conta.class));
     }
     
 }
