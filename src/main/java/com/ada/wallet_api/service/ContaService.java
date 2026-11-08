@@ -20,7 +20,10 @@ public class ContaService {
     }
 
     public Conta depositar(Long contaId, Double valor) {
-        return null;
+        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+
+        conta.setSaldo(conta.getSaldo() + valor);
+        return contaRepository.save(conta);
     }
 
 }
