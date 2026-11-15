@@ -25,6 +25,7 @@ public class ContaInterfaceSeleniumTest {
     private int port;
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeEach
     void setUp() {
@@ -34,6 +35,7 @@ public class ContaInterfaceSeleniumTest {
         options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     @AfterEach
@@ -46,21 +48,29 @@ public class ContaInterfaceSeleniumTest {
     @Test
     @DisplayName("Deve realizar deposito com sucesso através da interface web")
     void deveRealizarDepositoComSucessoPelaInterface() {
-        String url = "http://localhost:" + port + "/deposito.html";
-        driver.get(url);
-
-        WebElement campoContaId = driver.findElement(By.id("contaId"));
-        WebElement campoValor = driver.findElement(By.id("valor"));
-        WebElement botaoDepositar = driver.findElement(By.id("btnDepositar"));
-
-        campoContaId.sendKeys("1");
-        campoValor.sendKeys("150.00");
-        botaoDepositar.click();
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        WebElement mensagemResultado = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("mensagem")));
+        abrirPaginaDeposito();
+        preencherFormularioDeposito("1", "150.00");
+        clicarBotaoDepositar();
     
-        assertEquals("Depósito de R$ 150.00 realizado com sucesso!", mensagemResultado.getText());
+        assertEquals("Depósito de R$ 150.00 realizado com sucesso!", obterMensagemResultado());
+    }
+
+    private void abrirPaginaDeposito() {
+        driver.get("http://localhost:" + port + "/deposito.html");
+    }
+
+    private void preencherFormularioDeposito(String contaId, String valor) {
+        driver.findElement(By.id("contaId")).sendKeys(contaId);
+        driver.findElement(By.id("valor")).sendKeys(valor);
+    }
+
+    private void clicarBotaoDepositar() {
+        driver.findElement(By.id("btnDepositar")).click();
+    }
+
+    private String obterMensagemResultado() {
+        WebElement mensagem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("mensagem")));
+        return mensagem.getText();
     }
 
 }
