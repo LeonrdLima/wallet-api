@@ -26,6 +26,19 @@
         <p id="mensagem">Aguardando operação...</p>
     </div>
 
-    
+    <script>
+        function processarDeposito() {
+            const valorInput = document.getElementById('valor').value;
+            const valor = parseFloat(valorInput);
+            if (isNaN(valor) || valor <= 0) {
+                document.getElementById('mensagem').innerText = 'Erro: Valor de depósito deve ser maior que zero.';
+                document.getElementById('mensagem').style.color = 'red';
+                return;
+            }
+
+            document.getElementById('mensagem').innerText = 'Depósito de R$ ' + valor.toFixed(2) + ' realizado com sucesso!';
+            document.getElementById('mensagem').style.color = 'green';
+        }
+    </script>
 </body>
 </html>
