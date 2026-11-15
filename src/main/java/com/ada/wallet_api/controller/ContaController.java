@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ada.wallet_api.dto.DepositoRequestDTO;
+import com.ada.wallet_api.dto.TransferenciaRequestDTO;
 import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.service.ContaService;
 
@@ -33,6 +34,12 @@ public class ContaController {
     public ResponseEntity<Conta> depositar(@PathVariable("id") Long id, @RequestBody DepositoRequestDTO dto) {
         //contaService.depositar(id, dto.getValor());
         return new ResponseEntity<>(contaService.depositar(id, dto.getValor()), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/transferir")
+    public ResponseEntity<Conta> transferir(@PathVariable("id") Long origemId, @RequestBody TransferenciaRequestDTO dto) {
+        contaService.transferir(origemId, dto.getContaDestinoId(), dto.getValor());
+        return ResponseEntity.ok().build();
     }
     
 }
