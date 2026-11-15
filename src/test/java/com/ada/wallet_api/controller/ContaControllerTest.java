@@ -96,4 +96,20 @@ public class ContaControllerTest {
                .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("Deve retornar status 400 ao tentar depositar valor inválido")
+    void deveRetornar400QuandoValorDepositoInvalido() throws Exception {
+        Long contaId = 1L;
+        DepositoRequestDTO dto = new DepositoRequestDTO(-100.0);
+
+        Mockito.when(contaService.depositar(contaId, -100.0))
+               .thenThrow(new IllegalArgumentException("O valor do depósito deve ser maior que zero"));
+        
+        mockMvc.perform(post("/contas/{id}/depositar", contaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().string("O valor do depósito deve ser maior que zero"));
+    }
+
 }
