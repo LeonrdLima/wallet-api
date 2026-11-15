@@ -5,20 +5,30 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ada.wallet_api.dto.DepositoRequestDTO;
+import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.service.ContaService;
 
+import tools.jackson.databind.ObjectMapper;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(ContaController.class)
 public class ContaControllerTest {
     
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private ContaService contaService;
@@ -34,6 +44,23 @@ public class ContaControllerTest {
         mockMvc.perform(get("/contas/{id}/saldo", contaId))
                .andExpect(status().isOk())
                .andExpect(content().string("500.0"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 200 e conta atualizada ao realizar depósito")
+    void deveRealizarDepositoComSucesso() throws Exception {
+        Long contaId = 1L;
+        DepositoRequestDTO dto = new DepositoRequestDTO(100.0);
+        Conta contaAtualizada = new Conta(contaId, "Leonardo", 500.0);
+
+        Mockito.when(contaService.depositar(contaId, 100.0)).thenReturn(contaAtualizada);
+
+        mockMvc.perform(post("/contas/{id}/depositar", contaId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.id").value(contaId))
+               .andExpect(jsonPath("$.saldo").value(500.0));
     }
 
 }
