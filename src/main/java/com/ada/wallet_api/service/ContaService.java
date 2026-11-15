@@ -17,15 +17,14 @@ public class ContaService {
     }
 
     public Double consultarSaldo(Long contaId) {
-        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+        Conta conta = buscarConta(contaId, "Conta não encontrada");
         return conta.getSaldo();
     }
 
     public Conta depositar(Long contaId, Double valor) {
-        if(valor == null || valor <= 0) {
-            throw new IllegalArgumentException("O valor do depósito deve ser maior que zero");
-        }
-        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new IllegalArgumentException("Conta não encontrada"));
+        validarValorPositivo(valor, "O valor do depósito deve ser maior que zero");
+
+        Conta conta = buscarConta(contaId,"Conta não encontrada");
 
         conta.setSaldo(conta.getSaldo() + valor);
         return contaRepository.save(conta);
@@ -33,23 +32,35 @@ public class ContaService {
 
     @Transactional
     public void transferir(Long contaOrigemId, Long contaDestinoId, Double valor) {
-        if(valor == null || valor <= 0) {
-            throw new IllegalArgumentException("O valor da transferência deve ser maior que zero");
-        }
+        validarValorPositivo(valor, "O valor da transferência deve ser maior que zero");
 
-        Conta origem = contaRepository.findById(contaOrigemId).orElseThrow(() -> new IllegalArgumentException("Conta de origem não encontrada"));
+        Conta origem = buscarConta(contaOrigemId, "Conta de origem não encontrada");
 
-        if(origem.getSaldo() < valor) {
-            throw new SaldoInsuficienteException("Saldo insuficiente para transferência");
-        }
+        validarSaldoSuficiente(origem, valor);
 
-        Conta destino = contaRepository.findById(contaDestinoId).orElseThrow(() -> new IllegalArgumentException("Conta de destino não encontrada"));
+        Conta destino = buscarConta(contaDestinoId, "Conta de destino não encontrada");
 
         origem.setSaldo(origem.getSaldo() - valor);
         destino.setSaldo(destino.getSaldo() + valor);
 
         contaRepository.save(origem);
         contaRepository.save(destino);
+    }
+
+    private Conta buscarConta(Long id, String mensagemErro) {
+        return contaRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(mensagemErro));
+    }
+
+    private void validarValorPositivo(Double valor, String mensagemErro) {
+        if(valor == null || valor <= 0) {
+            throw new IllegalArgumentException(mensagemErro);
+        }
+    }
+
+    private void validarSaldoSuficiente(Conta origem, Double valor) {
+        if(origem.getSaldo() < valor) {
+            throw new SaldoInsuficienteException("Saldo insuficiente para transferência");
+        }
     }
 
 }
