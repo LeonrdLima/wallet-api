@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.ada.wallet_api.dto.DepositoRequestDTO;
 import com.ada.wallet_api.dto.TransferenciaRequestDTO;
+import com.ada.wallet_api.exception.SaldoInsuficienteException;
 import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.service.ContaService;
 
@@ -77,6 +78,22 @@ public class ContaControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 400 ao tentar transferir com saldo insuficiente")
+    void deveRetornar400QuandoSaldoInsuficiente() throws Exception {
+        Long contaOrigemId = 1L;
+        Long contaDestinoId = 2L;
+        TransferenciaRequestDTO dto = new TransferenciaRequestDTO(contaDestinoId, 500.0);
+
+        Mockito.doThrow(new SaldoInsuficienteException("Saldo insuficiente para transferência"))
+               .when(contaService).transferir(contaOrigemId, contaDestinoId, 500.0);
+
+        mockMvc.perform(post("/contas/{id}/transferir", contaOrigemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+               .andExpect(status().isBadRequest());
     }
 
 }
