@@ -12,4 +12,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> tratarSaldoInsuficiente(SaldoInsuficienteException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> tratarValorInvalido(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
 }
