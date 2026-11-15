@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ada.wallet_api.dto.DepositoRequestDTO;
+import com.ada.wallet_api.dto.TransferenciaRequestDTO;
 import com.ada.wallet_api.model.Conta;
 import com.ada.wallet_api.service.ContaService;
 
@@ -61,6 +62,21 @@ public class ContaControllerTest {
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(contaId))
                .andExpect(jsonPath("$.saldo").value(500.0));
+    }
+
+    @Test
+    @DisplayName("Deve retornar status 200 ao realizar transferência")
+    void deveRealizarTransferenciaComSucesso() throws Exception {
+        Long contaOrigemId = 1L;
+        Long contaDestinoId = 2L;
+        TransferenciaRequestDTO dto = new TransferenciaRequestDTO(contaDestinoId, 150.0);
+
+        Mockito.doNothing().when(contaService).transferir(contaOrigemId, contaDestinoId, 150.0);
+
+        mockMvc.perform(post("/contas/{id}/transferir", contaOrigemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+               .andExpect(status().isOk());
     }
 
 }
