@@ -17,6 +17,7 @@ import com.ada.wallet_api.service.ContaService;
 
 import tools.jackson.databind.ObjectMapper;
 
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -111,5 +112,15 @@ public class ContaControllerTest {
                .andExpect(status().isBadRequest())
                .andExpect(content().string("O valor do depósito deve ser maior que zero"));
     }
+
+    @Test
+    void deveRetornar400QuandoContasOrigemEDestinoForemIguaisNaTransferencia() throws Exception {
+        doThrow(new IllegalArgumentException("Conta de origem e destino não podem ser iguais")).when(contaService).transferir(1L, 1L, 100.0);
+
+        TransferenciaRequestDTO dto = new TransferenciaRequestDTO(1L, 100.0);
+
+        mockMvc.perform(post("/contas/{id}/transferir", 1L).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto))).andExpect(status().isBadRequest()).andExpect(content().string("Conta de origem e destino não podem ser iguais"));
+    }
+
 
 }
