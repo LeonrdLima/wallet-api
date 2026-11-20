@@ -125,4 +125,13 @@ public class ContaServiceTest {
         verify(contaRepository, never()).save(any(Conta.class));
     }
     
+    @Test
+    void deveLancarExcecaoQuandoContasOrigemEDestinoForemIguaisNaTransferencia() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            contaService.transferir(1L, 1L, 100.0);
+        });
+        assertEquals("Conta de origem e destino não podem ser iguais", exception.getMessage());
+        verify(contaRepository, never()).save(any());
+    }
+    
 }
