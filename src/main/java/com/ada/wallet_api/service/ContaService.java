@@ -32,6 +32,10 @@ public class ContaService {
 
     @Transactional
     public void transferir(Long contaOrigemId, Long contaDestinoId, Double valor) {
+        if(contaOrigemId.equals(contaDestinoId)) {
+            throw new IllegalArgumentException("Conta de origem e destino não podem ser iguais");
+        }
+        
         validarValorPositivo(valor, "O valor da transferência deve ser maior que zero");
 
         Conta origem = buscarConta(contaOrigemId, "Conta de origem não encontrada");
