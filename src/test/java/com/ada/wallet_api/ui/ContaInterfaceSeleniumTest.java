@@ -3,6 +3,7 @@ package com.ada.wallet_api.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,13 +29,8 @@ public class ContaInterfaceSeleniumTest {
 
     @BeforeEach
     void setUp() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-
-        driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(3));
     }
 
     @AfterEach
@@ -52,7 +47,10 @@ public class ContaInterfaceSeleniumTest {
         preencherFormularioDeposito("1", "150.00");
         clicarBotaoDepositar();
     
-        assertEquals("Depósito de R$ 150.00 realizado com sucesso!", obterMensagemResultado());
+        String mensagem = obterMensagemResultado();
+        pausarParaVisualizacao();
+
+        assertEquals("Depósito de R$ 150.00 realizado com sucesso!", mensagem);
     }
 
     private void abrirPaginaDeposito() {
@@ -71,6 +69,15 @@ public class ContaInterfaceSeleniumTest {
     private String obterMensagemResultado() {
         WebElement mensagem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("mensagem")));
         return mensagem.getText();
+    }
+
+    private void pausarParaVisualizacao() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("A pausa para visualização foi interrompida", e);
+        }
     }
 
 }
